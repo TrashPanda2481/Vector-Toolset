@@ -6,19 +6,27 @@ This is the bring-your-own-tools model. You can use the recommended set, add you
 
 ## Where binaries come from
 
-The build resolves each tool in this order:
+Running `build\Get-Tools.ps1` (which `build\Make-Stick.ps1` calls for you) resolves
+each tool in the manifest:
 
-1. Local stash. If the binary exists in your private stash folder, it is copied in. This is the normal path today.
-2. Download. If the manifest lists a stable source URL, the resolver downloads it and verifies it against the recorded hash where one is available.
-3. Report missing. If neither works, the tool is listed as add manually, with its source link.
+1. Auto-download. If `build\sources.json` lists a strategy for the tool (a GitHub
+   release asset, a direct link, or a Scoop package), it is fetched into `tools\` and
+   its SHA-256 is recorded. Most of the default set resolves this way.
+2. Manual download. Everything else sits behind a click-through or EULA page, or its
+   license does not allow redistribution. These are printed as a checklist and also
+   written to `tools\MANUAL_DOWNLOADS.md` - the tool, its source URL, and the folder
+   to drop it into. Download each by hand, then re-run `Get-Tools.ps1` to confirm.
 
-This means a tool with a stable link can be fetched automatically, and a tool behind a click-through or an unstable link is a documented manual step. Nothing about the pipeline changes as tools move from manual to automatic later.
+The Linux boot ISOs work the same way through `build\Get-Payload.ps1` and
+`build\payload.json`. As a tool moves from a click-through page to a stable link, it
+just moves from list 2 to list 1; nothing else about the pipeline changes.
 
-## The local stash
+## Keeping an offline copy (optional)
 
-Your private, verified copies of the tool binaries live outside the repo so they can never be committed by accident. Keep them in a folder beside the repo, for example a sibling named `Vector-Toolset-Binaries`.
-
-It mirrors the tools folder structure, for example:
+Upstream links rot, and re-downloading on every build is slow. If you want repeatable,
+offline builds, keep your own verified copies of the tool binaries in a folder outside
+the repo so they can never be committed by accident - a sibling named
+`Vector-Toolset-Binaries` that mirrors the `tools\` structure:
 
     Vector-Toolset-Binaries\diagnostics\
     Vector-Toolset-Binaries\disk\
@@ -29,7 +37,8 @@ It mirrors the tools folder structure, for example:
     Vector-Toolset-Binaries\utilities\
     Vector-Toolset-Binaries\fan-control\
 
-Drop each tool's portable files into the matching folder. Point the build at this folder when you run it.
+This is a personal convenience: copy from it into `tools\` by hand before building. The
+build does not read from this folder automatically.
 
 ## Adding a tool by hand
 
