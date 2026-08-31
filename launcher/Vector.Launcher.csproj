@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Vector.Launcher</AssemblyName>
+    <RootNamespace>Vector.Launcher</RootNamespace>
+    <Nullable>disable</Nullable>
+    <AssemblyTitle>Vector Toolset</AssemblyTitle>
+    <Product>Vector Toolset</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,44 @@
+# Tool binaries - portable .exe files are never tracked in git.
+# They are fetched at build time or supplied by the tech. Keep only the
+# folder structure via .gitkeep files.
+tools/**
+!tools/
+!tools/**/
+!tools/**/.gitkeep
+
+# Driver packs and other large binary data
+driver-db/**
+!driver-db/
+!driver-db/**/.gitkeep
+
+# Payload images (Linux boot ISOs, captured images)
+*.iso
+*.wim
+*.esd
+*.img
+
+# GRUB binaries (built by build/Build-Grub.ps1)
+boot/grub/*.efi
+boot/grub/fonts/
+
+# C# launcher build output
+launcher/**/bin/
+launcher/**/obj/
+
+# Build workspace and output
+build/workspace/
+build/output/
+build/winpe-work/
+build/payload/
+
+# Editor and transient files
+.vscode/vscode-notify-desktop-port.json
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Excluded from the public repo (kept locally)
+archive/
+docs/STATE.md

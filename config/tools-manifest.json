@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "schema": 2,
+    "product": "Vector Toolset",
+    "notes": "Launcher tools only. Boot-level Linux entries (Clonezilla, ShredOS, Memtest86+, GParted, ddrescue, chntpw) are GRUB entries, not launcher tools, and live in the boot config. Per tool fields: id, name, description, type (script|builtin|portable), category, path (relative to the stick root), plane (winpe|live|both, where it can run), baked (true = baked into the WinPE core, false = on the data partition), console (optional, true if it needs a console window), license (ours|oss|freeware|trial), status (optional: planned or last-resort), source {url, kind: direct|page|clickthrough}. sha256 is added later for verified fetches.",
+    "planes": {
+      "winpe": "runs in the WinPE boot environment",
+      "live": "runs only on a full running Windows system",
+      "both": "runs in WinPE and on live Windows"
+    }
+  },
+  "categories": [
+    {
+      "id": "quick",
+      "name": "Quick Actions",
+      "description": "Built-in workflows that ship with Vector",
+      "tools": [
+        { "id": "full-report", "name": "Full Diagnostic Report", "description": "System inventory, SMART, drivers, battery, and network into a branded HTML report", "type": "script", "path": "scripts/Invoke-DiagnosticReport.ps1", "plane": "both", "baked": true, "license": "ours" },
+        { "id": "smart-check", "name": "SMART Health Check", "description": "Fast pass or fail on every disk with temperature and error counts", "type": "script", "path": "scripts/Invoke-SmartCheck.ps1", "plane": "both", "baked": true, "license": "ours" },
+        { "id": "product-key", "name": "Product Key Finder", "description": "Windows and Office keys from this machine or a mounted hive", "type": "script", "path": "scripts/Get-ProductKey.ps1", "plane": "both", "baked": true, "license": "ours" },
+        { "id": "stress-test", "name": "Stress Test", "description": "CPU load with live thermal monitoring, stops on overheat", "type": "script", "path": "scripts/Invoke-StressTest.ps1", "plane": "both", "baked": true, "license": "ours" },
+        { "id": "dism-imager", "name": "DISM Imager", "description": "Capture and apply a Windows volume image (DISM, diskpart, bcdboot). File level reimage", "type": "script", "path": "scripts/Invoke-DismImager.ps1", "plane": "winpe", "baked": true, "license": "ours" }
+      ]
+    },
+    {
+      "id": "diagnostics",
+      "name": "Diagnostics",
+      "description": "Hardware identification, sensors, and health",
+      "tools": [
+        { "id": "hwinfo", "name": "HWiNFO", "description": "Full hardware inventory and real-time sensors", "type": "portable", "path": "tools/diagnostics/HWiNFO/HWiNFO64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.hwinfo.com/download/", "kind": "page" } },
+        { "id": "gpuz", "name": "GPU-Z", "description": "GPU identification, BIOS dump, and sensors", "type": "portable", "path": "tools/diagnostics/GPU-Z/GPU-Z.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.techpowerup.com/gpuz/", "kind": "page" } },
+        { "id": "sysinternals", "name": "Sysinternals Suite", "description": "Microsoft suite: Autoruns, Process Explorer, TCPView, and more", "type": "portable", "path": "tools/diagnostics/Sysinternals/", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://download.sysinternals.com/files/SysinternalsSuite.zip", "kind": "direct" } },
+        { "id": "librehwmonitor", "name": "Libre Hardware Monitor", "description": "Open source sensor monitoring: temps, voltages, fans", "type": "portable", "path": "tools/diagnostics/LibreHardwareMonitor/LibreHardwareMonitor.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases", "kind": "page" } },
+        { "id": "crystaldiskinfo", "name": "CrystalDiskInfo", "description": "SMART health viewer with temperature and wear", "type": "portable", "path": "tools/diagnostics/CrystalDiskInfo/DiskInfo64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://crystalmark.info/en/download/", "kind": "page" } },
+        { "id": "smartmontools", "name": "smartmontools", "description": "Command line SMART toolkit (smartctl), the gold standard", "type": "portable", "path": "tools/diagnostics/smartmontools/bin/smartctl.exe", "plane": "both", "baked": true, "console": true, "license": "oss", "source": { "url": "https://www.smartmontools.org/", "kind": "page" } },
+        { "id": "crystaldiskmark", "name": "CrystalDiskMark", "description": "Sequential and random read/write benchmark", "type": "portable", "path": "tools/diagnostics/CrystalDiskMark/DiskMark64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://crystalmark.info/en/download/", "kind": "page" } },
+        { "id": "atto", "name": "ATTO Disk Benchmark", "description": "Throughput benchmark across block sizes", "type": "portable", "path": "tools/diagnostics/ATTO/atto.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.atto.com/disk-benchmark/", "kind": "page" } },
+        { "id": "batteryinfoview", "name": "BatteryInfoView", "description": "Laptop battery health, capacity, and wear", "type": "portable", "path": "tools/diagnostics/BatteryInfoView/BatteryInfoView.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.nirsoft.net/utils/battery_information_view.html", "kind": "page" } },
+        { "id": "bluescreenview", "name": "BlueScreenView", "description": "Analyze Windows minidump crash files", "type": "portable", "path": "tools/diagnostics/BlueScreenView/BlueScreenView.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.nirsoft.net/utils/blue_screen_view.html", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "stress",
+      "name": "Stress and Stability",
+      "description": "CPU, GPU, and combined load testing",
+      "tools": [
+        { "id": "furmark", "name": "FurMark", "description": "GPU stress and burn-in stability test", "type": "portable", "path": "tools/stress/FurMark/FurMark.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://geeks3d.com/furmark/", "kind": "page" } },
+        { "id": "prime95", "name": "Prime95", "description": "The CPU torture-test standard", "type": "portable", "path": "tools/stress/Prime95/prime95.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.mersenne.org/download/", "kind": "page" } },
+        { "id": "occt", "name": "OCCT", "description": "Combined CPU, GPU, PSU, and RAM stress in one tool", "type": "portable", "path": "tools/stress/OCCT/OCCT.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.ocbase.com/", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "disk",
+      "name": "Disk and Recovery",
+      "description": "Partition, benchmark space, recover, and erase",
+      "tools": [
+        { "id": "diskpart", "name": "diskpart", "description": "Native command line disk tool: partition, format, assign, clean", "type": "builtin", "path": "diskpart.exe", "plane": "winpe", "baked": true, "console": true, "license": "ours" },
+        { "id": "minitool", "name": "MiniTool Partition Wizard Free", "description": "GUI partition manager: resize, move, merge, split, basic clone", "type": "portable", "path": "tools/disk/MiniTool/partitionwizard.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.partitionwizard.com/free-partition-manager.html", "kind": "page" } },
+        { "id": "windirstat", "name": "WinDirStat", "description": "Treemap of disk usage by folder", "type": "portable", "path": "tools/disk/WinDirStat/windirstat.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://windirstat.net/", "kind": "page" } },
+        { "id": "wiztree", "name": "WizTree", "description": "MFT-based disk usage scan, very fast. Free for personal use only", "type": "portable", "path": "tools/disk/WizTree/WizTree64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://diskanalyzer.com/", "kind": "page" } },
+        { "id": "recuva", "name": "Recuva", "description": "Friendly deleted-file recovery with deep scan", "type": "portable", "path": "tools/disk/Recuva/recuva64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.ccleaner.com/recuva", "kind": "page" } },
+        { "id": "photorec", "name": "PhotoRec", "description": "Signature-based file recovery from damaged media", "type": "portable", "path": "tools/disk/TestDisk/photorec_win.exe", "plane": "both", "baked": false, "console": true, "license": "oss", "source": { "url": "https://www.cgsecurity.org/wiki/TestDisk_Download", "kind": "page" } },
+        { "id": "testdisk", "name": "TestDisk", "description": "Partition recovery and boot-sector repair", "type": "portable", "path": "tools/disk/TestDisk/testdisk_win.exe", "plane": "both", "baked": false, "console": true, "license": "oss", "source": { "url": "https://www.cgsecurity.org/wiki/TestDisk_Download", "kind": "page" } },
+        { "id": "dmde", "name": "DMDE Free", "description": "Strong recovery engine with a capable free tier", "type": "portable", "path": "tools/disk/DMDE/dmde.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://dmde.com/download.html", "kind": "page" } },
+        { "id": "killdisk", "name": "Active@ KillDisk Free", "description": "Secure drive erase, works in WinPE and live Windows", "type": "portable", "path": "tools/disk/KillDisk/killdisk.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.killdisk.com/download.htm", "kind": "page" } },
+        { "id": "rufus", "name": "Rufus", "description": "Bootable USB and ISO creator", "type": "portable", "path": "tools/disk/Rufus/rufus.exe", "plane": "live", "baked": false, "license": "oss", "source": { "url": "https://rufus.ie/", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "drivers",
+      "name": "Drivers",
+      "description": "Driver detection, backup, and cleanup",
+      "tools": [
+        { "id": "dism-add-driver", "name": "DISM Add-Driver", "description": "Inject driver packages into an offline image or boot.wim", "type": "script", "path": "scripts/Add-OfflineDrivers.ps1", "plane": "winpe", "baked": true, "license": "ours" },
+        { "id": "3dp-net", "name": "3DP Net", "description": "Detect the NIC or Wi-Fi chipset and install from a bundled pool, for a machine with no network yet", "type": "portable", "path": "tools/drivers/3DPNet/3DP_Net.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.3dpchip.com/3dpchip/3dp/net_down_eng.php", "kind": "page" } },
+        { "id": "3dp-chip", "name": "3DP Chip", "description": "Identify all hardware and fetch matching drivers", "type": "portable", "path": "tools/drivers/3DPChip/3DP_Chip.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.3dpchip.com/", "kind": "page" } },
+        { "id": "ddu", "name": "Display Driver Uninstaller", "description": "Deep clean of GPU drivers before reinstall", "type": "portable", "path": "tools/drivers/DDU/Display Driver Uninstaller.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.wagnardsoft.com/", "kind": "page" } },
+        { "id": "drivestoreexplorer", "name": "Driver Store Explorer", "description": "Browse and prune the Windows driver store", "type": "portable", "path": "tools/drivers/DriverStoreExplorer/Rapr.exe", "plane": "live", "baked": false, "license": "oss", "source": { "url": "https://github.com/lostindark/DriverStoreExplorer/releases", "kind": "page" } },
+        { "id": "double-driver", "name": "Double Driver", "description": "Back up and restore drivers already on a working machine", "type": "portable", "path": "tools/drivers/DoubleDriver/dd.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.majorgeeks.com/files/details/double_driver.html", "kind": "page" } },
+        { "id": "sdi-origin", "name": "Snappy Driver Installer Origin", "description": "Bulk offline driver-pack installer. Last resort due to AV-flag optics; run isolated. To be replaced by Waypoint Driver Installer", "type": "portable", "path": "tools/drivers/SDIOrigin/SDIO_x64.exe", "plane": "live", "baked": false, "license": "oss", "status": "last-resort", "source": { "url": "https://www.snappy-driver-installer.org/", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "fan",
+      "name": "Fan Control",
+      "description": "Independent fan control for diagnostics. Live Windows only",
+      "tools": [
+        { "id": "fancontrol", "name": "FanControl", "description": "Independent per-fan curves, force any fan to a set percentage", "type": "portable", "path": "tools/fan-control/FanControl/FanControl.exe", "plane": "live", "baked": false, "license": "oss", "source": { "url": "https://github.com/Rem0o/FanControl.Releases/releases", "kind": "page" } },
+        { "id": "nbfc", "name": "nbfc-revive", "description": "Laptop fan control via model-specific EC profiles", "type": "portable", "path": "tools/fan-control/nbfc/nbfc.exe", "plane": "live", "baked": false, "license": "oss", "source": { "url": "https://github.com/UraniumDonut/nbfc-revive/releases", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "network",
+      "name": "Network",
+      "description": "Scanning, capture, and connectivity",
+      "tools": [
+        { "id": "advanced-ip-scanner", "name": "Advanced IP Scanner", "description": "Fast LAN device discovery", "type": "portable", "path": "tools/network/AdvancedIPScanner/advanced_ip_scanner.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.advanced-ip-scanner.com/", "kind": "page" } },
+        { "id": "wireshark", "name": "Wireshark", "description": "Packet capture and protocol analysis. Needs Npcap", "type": "portable", "path": "tools/network/Wireshark/Wireshark.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://www.wireshark.org/download.html", "kind": "page" } },
+        { "id": "putty", "name": "PuTTY", "description": "SSH, Telnet, and serial client", "type": "portable", "path": "tools/network/PuTTY/putty.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html", "kind": "page" } },
+        { "id": "winscp", "name": "WinSCP", "description": "SFTP, SCP, and FTP transfer client", "type": "portable", "path": "tools/network/WinSCP/WinSCP.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://winscp.net/eng/download.php", "kind": "page" } },
+        { "id": "nmap", "name": "Nmap", "description": "Network and port scanner. Needs Npcap", "type": "portable", "path": "tools/network/Nmap/nmap.exe", "plane": "both", "baked": false, "console": true, "license": "oss", "source": { "url": "https://nmap.org/download.html", "kind": "page" } },
+        { "id": "angry-ip", "name": "Angry IP Scanner", "description": "Lightweight cross-platform IP scanner. Needs Java", "type": "portable", "path": "tools/network/AngryIP/ipscan.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://angryip.org/download/", "kind": "page" } },
+        { "id": "wifiinfoview", "name": "WifiInfoView", "description": "Wi-Fi analyzer: channels, signal, security", "type": "portable", "path": "tools/network/WifiInfoView/WifiInfoView.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.nirsoft.net/utils/wifi_information_view.html", "kind": "page" } },
+        { "id": "tcpview", "name": "TCPView", "description": "Live TCP and UDP connection viewer", "type": "portable", "path": "tools/network/TCPView/Tcpview64.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://learn.microsoft.com/sysinternals/downloads/tcpview", "kind": "page" } },
+        { "id": "iperf3", "name": "iperf3", "description": "Point-to-point throughput measurement", "type": "portable", "path": "tools/network/iperf3/iperf3.exe", "plane": "both", "baked": false, "console": true, "license": "oss", "source": { "url": "https://iperf.fr/iperf-download.php", "kind": "page" } },
+        { "id": "netsetman", "name": "NetSetMan", "description": "Fast network-profile switcher", "type": "portable", "path": "tools/network/NetSetMan/netsetman.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.netsetman.com/en/download", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "description": "Malware removal, autoruns, firewall, and online lookup",
+      "tools": [
+        { "id": "eek", "name": "Emsisoft Emergency Kit", "description": "Portable dual-engine on-demand scanner", "type": "portable", "path": "tools/security/EEK/start.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.emsisoft.com/en/emergency-kit/", "kind": "page" } },
+        { "id": "kvrt", "name": "Kaspersky KVRT", "description": "Standalone second-opinion scanner", "type": "portable", "path": "tools/security/KVRT/KVRT.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.kaspersky.com/downloads/free-virus-removal-tool", "kind": "page" } },
+        { "id": "clamwin", "name": "ClamWin / ClamAV", "description": "Open source signature scanner (clamscan CLI in WinPE)", "type": "portable", "path": "tools/security/ClamWin/clamscan.exe", "plane": "both", "baked": false, "console": true, "license": "oss", "source": { "url": "https://www.clamwin.com/", "kind": "page" } },
+        { "id": "adwcleaner", "name": "AdwCleaner", "description": "Adware, PUP, and browser-hijack removal", "type": "portable", "path": "tools/security/AdwCleaner/adwcleaner.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.malwarebytes.com/adwcleaner", "kind": "page" } },
+        { "id": "rkill", "name": "rkill", "description": "Kill active malware processes before a scan", "type": "portable", "path": "tools/security/rkill/rkill.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.bleepingcomputer.com/download/rkill/", "kind": "page" } },
+        { "id": "frst", "name": "FRST", "description": "Deep diagnostic and scripted-fix tool (Farbar Recovery Scan Tool)", "type": "portable", "path": "tools/security/FRST/FRST64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.bleepingcomputer.com/download/farbar-recovery-scan-tool/", "kind": "page" } },
+        { "id": "autoruns", "name": "Autoruns", "description": "Everything that auto-starts, with offline-hive support", "type": "portable", "path": "tools/security/Autoruns/Autoruns64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://learn.microsoft.com/sysinternals/downloads/autoruns", "kind": "page" } },
+        { "id": "wfc", "name": "Windows Firewall Control", "description": "Portable GUI frontend over the built-in firewall, no subscription", "type": "portable", "path": "tools/security/WFC/wfc.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.binisoft.org/wfc", "kind": "page" } },
+        { "id": "vt-cli", "name": "vt-cli", "description": "Check a file or hash across many engines on VirusTotal. Free API: 4/min, 500/day", "type": "portable", "path": "tools/security/vt-cli/vt.exe", "plane": "both", "baked": false, "console": true, "license": "oss", "source": { "url": "https://github.com/VirusTotal/vt-cli/releases", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "recovery",
+      "name": "Windows Recovery",
+      "description": "Password, key, and system repair",
+      "tools": [
+        { "id": "windows-repair-builtin", "name": "System Repair (DISM/SFC)", "description": "Built-in image and system-file repair, wrapped as a workflow", "type": "script", "path": "scripts/Invoke-WindowsRepair.ps1", "plane": "winpe", "baked": true, "license": "ours" },
+        { "id": "ntpwedit", "name": "NTPWEdit", "description": "Offline local-account password editor from a mounted SAM", "type": "portable", "path": "tools/recovery/NTPWEdit/ntpwedit64.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://www.cdslow.org.ua/en/ntpwedit/", "kind": "page" } },
+        { "id": "produkey", "name": "ProduKey", "description": "Extract Windows, Office, and other product keys, including from offline hives", "type": "portable", "path": "tools/recovery/ProduKey/ProduKey.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.nirsoft.net/utils/product_cd_key_viewer.html", "kind": "page" } },
+        { "id": "nirlauncher", "name": "NirLauncher", "description": "The full NirSoft suite: keys, passwords, forensics", "type": "portable", "path": "tools/recovery/NirLauncher/NirLauncher.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://launcher.nirsoft.net/", "kind": "page" } },
+        { "id": "tweaking-repair", "name": "Tweaking.com Windows Repair", "description": "Bulk repair of components, permissions, Winsock, Update, WMI, firewall. Prompts for a restore point", "type": "portable", "path": "tools/recovery/TweakingRepair/Repair_Windows.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://www.tweaking.com/", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "utilities",
+      "name": "Utilities",
+      "description": "General-purpose tools",
+      "tools": [
+        { "id": "7zip", "name": "7-Zip", "description": "Archive manager: zip, 7z, rar, tar, and more", "type": "portable", "path": "tools/utilities/7-Zip/7zFM.exe", "plane": "both", "baked": true, "license": "oss", "source": { "url": "https://www.7-zip.org/download.html", "kind": "page" } },
+        { "id": "notepadpp", "name": "Notepad++", "description": "Text and log viewer with syntax highlighting", "type": "portable", "path": "tools/utilities/NotepadPP/notepad++.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://notepad-plus-plus.org/downloads/", "kind": "page" } },
+        { "id": "everything", "name": "Everything", "description": "Instant filename search across all drives", "type": "portable", "path": "tools/utilities/Everything/Everything.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.voidtools.com/downloads/", "kind": "page" } },
+        { "id": "procexp", "name": "Process Explorer", "description": "Advanced task manager and process inspector", "type": "portable", "path": "tools/utilities/ProcessExplorer/procexp64.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://learn.microsoft.com/sysinternals/downloads/process-explorer", "kind": "page" } },
+        { "id": "system-informer", "name": "System Informer", "description": "Open source Process Hacker successor, deeper than Process Explorer", "type": "portable", "path": "tools/utilities/SystemInformer/amd64/SystemInformer.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://systeminformer.sourceforge.io/downloads", "kind": "page" } },
+        { "id": "regcool", "name": "RegCool", "description": "Advanced registry editor, loads offline hives, compare and undo", "type": "portable", "path": "tools/utilities/RegCool/RegCool.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://kurtzimmermann.com/regcool_en.html", "kind": "page" } },
+        { "id": "bleachbit", "name": "BleachBit", "description": "Open source disk cleaner, the clean CCleaner replacement", "type": "portable", "path": "tools/utilities/BleachBit/bleachbit.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://www.bleachbit.org/download", "kind": "page" } },
+        { "id": "teracopy", "name": "TeraCopy", "description": "Copy manager with verification", "type": "portable", "path": "tools/utilities/TeraCopy/TeraCopy.exe", "plane": "both", "baked": false, "license": "freeware", "source": { "url": "https://www.codesector.com/downloads", "kind": "page" } },
+        { "id": "fastcopy", "name": "FastCopy", "description": "High-speed file copy and sync", "type": "portable", "path": "tools/utilities/FastCopy/FastCopy.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://fastcopy.jp/", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "remote",
+      "name": "Remote Support",
+      "description": "Remote desktop for assist",
+      "tools": [
+        { "id": "rustdesk", "name": "RustDesk", "description": "Open source remote desktop, self-hostable, no account required", "type": "portable", "path": "tools/remote/RustDesk/rustdesk.exe", "plane": "live", "baked": false, "license": "oss", "source": { "url": "https://github.com/rustdesk/rustdesk/releases", "kind": "page" } },
+        { "id": "anydesk", "name": "AnyDesk", "description": "Reliable, widely-used remote desktop. Free tier restricts commercial use", "type": "portable", "path": "tools/remote/AnyDesk/AnyDesk.exe", "plane": "live", "baked": false, "license": "freeware", "source": { "url": "https://anydesk.com/download", "kind": "page" } }
+      ]
+    },
+    {
+      "id": "web",
+      "name": "Web",
+      "description": "Browser for docs and driver downloads",
+      "tools": [
+        { "id": "firefox-portable", "name": "Firefox Portable", "description": "Portable browser for docs and driver downloads", "type": "portable", "path": "tools/web/FirefoxPortable/firefox.exe", "plane": "both", "baked": false, "license": "oss", "source": { "url": "https://portableapps.com/apps/internet/firefox_portable", "kind": "page" } }
+      ]
+    }
+  ]
+}

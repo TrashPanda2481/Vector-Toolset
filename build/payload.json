@@ -1,0 +1,10 @@
+{
+  "note": "Linux tool ISOs for the GRUB payload. Fetched by build/Get-Payload.ps1 into build/payload/ (gitignored). Deploy-USB -PayloadSource build\\payload copies them to VECTORDATA\\payload. The out names must match the entries in boot/grub.cfg. Versions here are pinned; update the URLs when new releases come out.",
+  "tools": {
+    "clonezilla":   { "type": "sourceforge", "url": "https://sourceforge.net/projects/clonezilla/files/clonezilla_live_stable/3.3.3-15/clonezilla-live-3.3.3-15-amd64.iso/download", "out": "clonezilla.iso" },
+    "gparted":      { "type": "sourceforge", "url": "https://sourceforge.net/projects/gparted/files/gparted-live-stable/1.8.1-6/gparted-live-1.8.1-6-amd64.iso/download", "out": "gparted.iso" },
+    "systemrescue": { "type": "direct", "url": "https://fastly-cdn.system-rescue.org/releases/13.02/systemrescue-13.02-amd64.iso", "out": "systemrescue.iso" },
+    "shredos":      { "type": "github", "repo": "PartialVolume/shredos.x86_64", "asset": "x86-64_v[0-9.]+_[0-9]+\\.iso$", "out": "shredos.iso" },
+    "memtest":      { "type": "memtest", "url": "https://www.memtest.org/download/v8.10/mt86plus_8.10.binaries.zip" }
+  }
+}

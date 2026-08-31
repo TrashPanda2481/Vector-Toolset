@@ -1,0 +1,52 @@
+# Vector Toolset - GRUB2 theme
+# Charcoal background with an orange accent. No background image is required;
+# the desktop-color paints the whole screen.
+
+title-text: ""
+desktop-color: "#0e0f11"
+message-color: "#8a9099"
+terminal-font: "Unifont Regular 16"
+terminal-box: "terminal_box_*"
+
++ label {
+  top        = 8%
+  left       = 0
+  width      = 100%
+  align      = "center"
+  color      = "#ff7a1a"
+  font       = "Unifont Regular 16"
+  text       = "VECTOR TOOLSET"
+}
+
++ label {
+  top        = 13%
+  left       = 0
+  width      = 100%
+  align      = "center"
+  color      = "#8a9099"
+  font       = "Unifont Regular 16"
+  text       = "Diagnostics and Repair"
+}
+
++ boot_menu {
+  top                  = 24%
+  left                 = 22%
+  width                = 56%
+  height               = 58%
+  item_font            = "Unifont Regular 16"
+  item_color           = "#d7dce6"
+  selected_item_color  = "#ff7a1a"
+  item_height          = 28
+  item_padding         = 6
+  item_spacing         = 4
+}
+
++ label {
+  top    = 90%
+  left   = 0
+  width  = 100%
+  align  = "center"
+  color  = "#626b7d"
+  font   = "Unifont Regular 16"
+  text   = "Enter to boot     arrow keys to move"
+}

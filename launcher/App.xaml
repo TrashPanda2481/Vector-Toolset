@@ -1,0 +1,144 @@
+<Application x:Class="Vector.Launcher.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+  <Application.Resources>
+
+    <!-- Palette: orange accent on dark gray and black -->
+    <SolidColorBrush x:Key="BgBase" Color="#0e0f11"/>
+    <SolidColorBrush x:Key="Surface" Color="#16181b"/>
+    <SolidColorBrush x:Key="SurfaceRaised" Color="#1f2226"/>
+    <SolidColorBrush x:Key="Border" Color="#2b2f34"/>
+    <SolidColorBrush x:Key="Text" Color="#e7e8ea"/>
+    <SolidColorBrush x:Key="TextDim" Color="#8a9099"/>
+    <SolidColorBrush x:Key="Accent" Color="#ff7a1a"/>
+    <SolidColorBrush x:Key="AccentHover" Color="#ff9445"/>
+    <SolidColorBrush x:Key="Ready" Color="#3fb950"/>
+    <SolidColorBrush x:Key="Warning" Color="#e3b341"/>
+    <SolidColorBrush x:Key="Critical" Color="#e5534b"/>
+
+    <FontFamily x:Key="UiFont">Segoe UI</FontFamily>
+    <FontFamily x:Key="MonoFont">Consolas</FontFamily>
+
+    <!-- Footer button -->
+    <Style x:Key="FooterButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaised}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="Margin" Value="0,0,6,0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource Text}"/>
+                <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource TextDim}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="FooterDanger" TargetType="Button" BasedOn="{StaticResource FooterButton}">
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Foreground" Value="{StaticResource Critical}"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
+    <!-- Category rail button -->
+    <Style x:Key="CategoryButton" TargetType="Button">
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="3,0,0,0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" Padding="17,0">
+              <ContentPresenter VerticalAlignment="Center"/>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Text input -->
+    <Style x:Key="DarkTextBox" TargetType="TextBox">
+      <Setter Property="Foreground" Value="{StaticResource Text}"/>
+      <Setter Property="CaretBrush" Value="{StaticResource Text}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaised}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="8,6"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="TextBox">
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+              <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsFocused" Value="True">
+                <Setter Property="BorderBrush" Value="{StaticResource Accent}"/>
+              </Trigger>
+              <Trigger Property="IsReadOnly" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Field label -->
+    <Style x:Key="FieldLabel" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Margin" Value="0,12,0,4"/>
+    </Style>
+
+    <!-- Primary (accent) button -->
+    <Style x:Key="PrimaryButton" TargetType="Button">
+      <Setter Property="Foreground" Value="#111111"/>
+      <Setter Property="Background" Value="{StaticResource Accent}"/>
+      <Setter Property="Padding" Value="16,7"/>
+      <Setter Property="Margin" Value="6,0,0,0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="b" Property="Background" Value="{StaticResource AccentHover}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+  </Application.Resources>
+</Application>

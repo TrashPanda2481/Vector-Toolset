@@ -1,0 +1,79 @@
+# Vector Toolset
+
+A branded, self-contained WinPE toolkit for IT technicians. Build it once, carry it on a USB stick, and use it two ways from the same stick:
+
+1. Boot a machine from it, into a WinPE diagnostic environment that opens the Vector launcher.
+2. Plug it into a running Windows, Mac, or Linux system and use the tools from an accessible folder.
+
+The goal is a diagnostic and repair kit that is intuitive and stress free, built the way an IT specialist would want it, so a tech does not have to assemble one from scratch.
+
+## Status
+
+In development, planning locked. See `docs/` for the design. This is a personal build; nothing here is final.
+
+## How it works, in short
+
+- A custom GRUB2 boot menu offers WinPE plus a set of Linux repair tools (Clonezilla, ShredOS, Memtest86+, GParted, ddrescue, chntpw).
+- WinPE stays small. It loads a tiny core into memory and reaches the rest of the tools from a large data partition on the stick.
+- That data partition is exFAT, so the same tool folder is readable when booted into WinPE and when the stick is plugged into a live system.
+- The launcher is a C# WPF app that runs as the WinPE shell and also runs on a live Windows box. It is aware of which environment it is in and only offers tools that make sense there.
+
+## Repo layout
+
+    launcher/    C# WPF launcher source
+    scripts/     built-in PowerShell tools (diagnostics, SMART, keys, stress, imaging)
+    config/      tools-manifest.json (tools and categories), shop.json (branding)
+    build/       the build pipeline scripts
+    boot/        GRUB2 config, theme, menu
+    branding/    splash, logo, icons
+    docs/        architecture, build plan, tool decisions, branding, adding tools
+    tools/       empty placeholders; binaries are fetched or supplied, never in git
+
+## Building your own stick
+
+Full detail is in `docs/BUILD_PLAN.md`. The short version:
+
+Prerequisites (install once):
+
+- Windows ADK plus the WinPE add-on
+- The .NET SDK (provides `dotnet`)
+- WSL with an Ubuntu or Debian distro (GRUB is built there)
+- Scoop for some tool downloads: `irm get.scoop.sh | iex`
+
+Then build and deploy with two commands. Part 1 runs from a normal prompt (the tool
+fetch uses Scoop, which will not run as admin); part 2 runs elevated (WinPE imaging
+and disk partitioning need Administrator).
+
+1. Normal prompt - builds the launcher, fetches the tools and Linux ISOs, builds GRUB:
+
+       powershell -ExecutionPolicy Bypass -File build\Make-Stick.ps1
+
+2. Elevated prompt - bakes WinPE and writes the stick. Run it once with no disk number
+   to list disks, then again with the target number:
+
+       powershell -ExecutionPolicy Bypass -File build\Deploy-Stick.ps1
+       powershell -ExecutionPolicy Bypass -File build\Deploy-Stick.ps1 -DiskNumber <N>
+
+The deploy wipes the target disk; it refuses a non-USB or system disk and makes you
+type the disk number to confirm. Boot the finished stick with UEFI and Secure Boot off.
+
+You supply the tool binaries you are licensed to use (see `docs/ADDING_TOOLS.md`); most
+are freeware that cannot be redistributed, so they are never in this repo.
+
+## Adding your own tools
+
+Vector ships as a framework with a curated default set. The tool binaries are not in this repo, because most are freeware that cannot be redistributed and would bloat the history. You supply the tools you are licensed to use, including your own proprietary ones, and the launcher picks them up. See `docs/ADDING_TOOLS.md`.
+
+## Documentation
+
+- `docs/ARCHITECTURE.md` - how the stick and the software are structured
+- `docs/BUILD_PLAN.md` - what gets built, in what order, and what each part needs
+- `docs/TOOL_DECISIONS.md` - the locked tool list and what was dropped or avoided
+- `docs/BRANDING.md` - name, palette, typography, and voice
+- `docs/ADDING_TOOLS.md` - how tool binaries are supplied and added
+
+## License
+
+MIT, see `LICENSE`. This covers the Vector Toolset code (launcher, scripts, configs,
+build pipeline). It does not cover any third-party tools you add to a stick; those keep
+their own licenses and are never included in this repo.
