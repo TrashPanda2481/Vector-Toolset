@@ -16,9 +16,7 @@ This means a tool with a stable link can be fetched automatically, and a tool be
 
 ## The local stash
 
-Your private, verified copies of the tool binaries live outside the repo so they can never be committed by accident:
-
-    D:\VStudio\Vector-Toolset-Binaries
+Your private, verified copies of the tool binaries live outside the repo so they can never be committed by accident. Keep them in a folder beside the repo, for example a sibling named `Vector-Toolset-Binaries`.
 
 It mirrors the tools folder structure, for example:
 
