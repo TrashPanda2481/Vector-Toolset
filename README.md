@@ -7,9 +7,32 @@ A branded, self-contained WinPE toolkit for IT technicians. Build it once, carry
 
 The goal is a diagnostic and repair kit that is intuitive and stress free, built the way an IT specialist would want it, so a tech does not have to assemble one from scratch.
 
+## What this is
+
+A personal IT rescue toolkit and a portfolio build. I built it to own my own stick end to end and to work through the engineering, not to displace the established toolkits. If you just need a loaded rescue USB today, the mature options below are the honest recommendation. Vector is the version I wanted to build and control myself.
+
+## How it compares
+
+The space is well served, and Vector does not try to unseat it:
+
+- Loaded, ready-to-boot rescue kits: Hiren's BootCD PE, Sergei Strelec's WinPE, MediCat. Download and go.
+- Multiboot USB loader: Ventoy. Drag ISOs on and boot them, Secure Boot included.
+- Build-your-own custom WinPE: PEBakery and its projects (Win10PESE, Win10XPE, PhoenixPE).
+
+What Vector does for its own sake: one opinionated, environment-aware launcher that runs both as the WinPE shell and on a live system; a bring-your-own-tools manifest so the stick holds exactly the tools you choose and nothing else; and a repo that ships no binaries, so the whole thing is license-clean and reproducible from source.
+
+## What it demonstrates
+
+For anyone reading this as a portfolio piece, the engineering underneath:
+
+- A WinPE image built and customized with the Windows ADK and DISM: optional components, driver injection, and a WPF app set as the boot shell.
+- A branded GRUB2 multiboot layer built from scratch (grub-mkstandalone via WSL) that chainloads WinPE and loopback-boots Linux tool ISOs, on both BIOS and UEFI.
+- A C# WPF launcher (.NET Framework 4.8) that renders as a locked kiosk shell in WinPE and as a normal app on live Windows, driven by a JSON tool manifest.
+- A guarded USB deploy: GPT partitioning into an EFI system partition plus an exFAT data partition, with a wipe path that survives the Windows removable-disk auto-init race.
+
 ## Status
 
-In development, planning locked. See `docs/` for the design. This is a personal build; nothing here is final.
+Boot chain proven on real hardware (themed GRUB menu, WinPE, and the Linux tools all boot). See `docs/` for the design and `docs/BUILD_PLAN.md` for the pipeline.
 
 ## How it works, in short
 
