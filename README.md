@@ -36,7 +36,7 @@ Boot chain proven on real hardware (themed GRUB menu, WinPE, and the Linux tools
 
 ## How it works, in short
 
-- A custom GRUB2 boot menu offers WinPE plus a set of Linux repair tools (Clonezilla, ShredOS, Memtest86+, GParted, ddrescue, chntpw).
+- By default the stick boots straight into WinPE through the Microsoft-signed Windows boot manager, so Secure Boot can stay on on the machine you plug it into. An optional build (`-WithLinuxBoot`) adds a custom GRUB2 menu with Linux repair tools (Clonezilla, ShredOS, Memtest86+, GParted, SystemRescue); that one needs Secure Boot off, because GRUB is not Microsoft-signed.
 - WinPE stays small. It loads a tiny core into memory and reaches the rest of the tools from a large data partition on the stick.
 - That data partition is exFAT, so the same tool folder is readable when booted into WinPE and when the stick is plugged into a live system.
 - The launcher is a C# WPF app that runs as the WinPE shell and also runs on a live Windows box. It is aware of which environment it is in and only offers tools that make sense there.
@@ -60,14 +60,15 @@ Prerequisites (install once):
 
 - Windows ADK plus the WinPE add-on
 - The .NET SDK (provides `dotnet`)
-- WSL with an Ubuntu or Debian distro (GRUB is built there)
 - Scoop for some tool downloads: `irm get.scoop.sh | iex`
+- WSL with an Ubuntu or Debian distro - only for the optional Linux-boot stick
+  (that is where GRUB is built); the default stick does not need it
 
 Then build and deploy with two commands. Part 1 runs from a normal prompt (the tool
 fetch uses Scoop, which will not run as admin); part 2 runs elevated (WinPE imaging
 and disk partitioning need Administrator).
 
-1. Normal prompt - builds the launcher, fetches the tools and Linux ISOs, builds GRUB:
+1. Normal prompt - builds the launcher and fetches the tools:
 
        powershell -ExecutionPolicy Bypass -File build\Make-Stick.ps1
 
@@ -77,8 +78,19 @@ and disk partitioning need Administrator).
        powershell -ExecutionPolicy Bypass -File build\Deploy-Stick.ps1
        powershell -ExecutionPolicy Bypass -File build\Deploy-Stick.ps1 -DiskNumber <N>
 
-The deploy wipes the target disk; it refuses a non-USB or system disk and makes you
-type the disk number to confirm. Boot the finished stick with UEFI and Secure Boot off.
+This builds the default stick: it boots straight into WinPE, so Secure Boot can stay
+on on the machine you plug it into. The deploy wipes the target disk; it refuses a
+non-USB or system disk and makes you type the disk number to confirm.
+
+### Optional: add the Linux boot tools
+
+To also get the GRUB multiboot menu (Memtest86+, Clonezilla, GParted, ShredOS,
+SystemRescue), pass `-WithLinuxBoot` to both commands. This needs WSL (GRUB is built
+there), and the resulting stick needs Secure Boot turned off to boot, because GRUB is
+not Microsoft-signed:
+
+       powershell -ExecutionPolicy Bypass -File build\Make-Stick.ps1 -WithLinuxBoot
+       powershell -ExecutionPolicy Bypass -File build\Deploy-Stick.ps1 -DiskNumber <N> -WithLinuxBoot
 
 You supply the tool binaries you are licensed to use (see `docs/ADDING_TOOLS.md`); most
 are freeware that cannot be redistributed, so they are never in this repo.

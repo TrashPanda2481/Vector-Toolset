@@ -13,7 +13,12 @@
 .PARAMETER DiskNumber
     Target USB disk number (from the list). Omit to just list disks.
 .PARAMETER PayloadSource
-    Folder of Linux ISOs to copy. Defaults to build\payload.
+    Folder of Linux ISOs to copy. Defaults to build\payload. Only used with
+    -WithLinuxBoot.
+.PARAMETER WithLinuxBoot
+    Build a GRUB multiboot stick (Memtest, Clonezilla, ShredOS, etc.) instead of
+    the default WinPE-direct stick. The GRUB stick needs Secure Boot OFF to boot
+    and needs part 1 to have been run with -WithLinuxBoot (GRUB + payload built).
 .PARAMETER SkipWinPE
     Skip the WinPE rebake (boot.wim is already current). Faster for a data-only
     redeploy; leave it off after any launcher change.
@@ -23,6 +28,7 @@
 param(
     [int]$DiskNumber = -1,
     [string]$PayloadSource,
+    [switch]$WithLinuxBoot,
     [switch]$SkipWinPE,
     [string]$ToolsetRoot = (Split-Path $PSScriptRoot -Parent)
 )
@@ -53,7 +59,7 @@ if ($SkipWinPE) {
 }
 
 Step 2 'Deploying to the USB (Deploy-USB.ps1)'
-& (Join-Path $ToolsetRoot 'build\Deploy-USB.ps1') -DiskNumber $DiskNumber -PayloadSource $PayloadSource -ToolsetRoot $ToolsetRoot
+& (Join-Path $ToolsetRoot 'build\Deploy-USB.ps1') -DiskNumber $DiskNumber -PayloadSource $PayloadSource -WithLinuxBoot:$WithLinuxBoot -ToolsetRoot $ToolsetRoot
 
 if ($DiskNumber -lt 0) {
     Write-Host ""

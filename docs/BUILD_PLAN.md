@@ -2,6 +2,8 @@
 
 What has to be built, in what order, and what each part needs. See ARCHITECTURE.md for how the pieces fit.
 
+Status: all components below are built and the stick is boot-tested. The GRUB bootloader (item 7) is now the optional `-WithLinuxBoot` profile; the default stick boots WinPE directly (no GRUB, no WSL), so Secure Boot can stay on. See the README quickstart for the two build commands.
+
 ## Components
 
 | # | Component | What it is | Needs | Risk |
@@ -37,6 +39,6 @@ Build the launcher first and test it entirely on live Windows before touching th
 - The GRUB2 multiboot layer (item 7). Chainloading WinPE and the Linux ISOs across BIOS and UEFI is the least certain part.
 - Deploy-USB (item 8). Partitioning a physical disk safely, with strong guards so the wrong drive can never be targeted.
 
-## Prerequisite gap
+## Prerequisites
 
-The Windows ADK and the WinPE add-on are not installed on the build machine yet. They are needed from phase D on. Phases A and B do not need them, so the launcher work is not blocked.
+The Windows ADK and the WinPE add-on are required from phase D on and are installed on the build machine. The .NET SDK builds the launcher. Scoop is used by Get-Tools for some downloads. WSL (where GRUB is built) is only needed for the optional `-WithLinuxBoot` profile; the default WinPE-direct stick does not use it.

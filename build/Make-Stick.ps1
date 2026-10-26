@@ -2,13 +2,23 @@
 .SYNOPSIS
     Vector Toolset - build everything (part 1 of 2, NORMAL prompt)
 .DESCRIPTION
-    Runs the non-elevated half of the build pipeline in order:
-      preflight -> build launcher -> fetch tools -> fetch payload -> build GRUB
+    Runs the non-elevated half of the build pipeline.
+
+    Default (WinPE-direct stick): preflight -> build launcher -> fetch tools. No
+    WSL or GRUB needed; the stick boots straight into WinPE and Secure Boot can
+    stay on.
+
+    With -WithLinuxBoot (GRUB multiboot stick): also fetch the Linux payload ISOs
+    and build GRUB (needs WSL). That stick needs Secure Boot off to boot.
 
     Run this from a NORMAL (non-elevated) prompt: the tool fetch uses Scoop, which
     refuses to run as Administrator. When it finishes, run the elevated half:
       build\Deploy-Stick.ps1 -DiskNumber <N>
+      build\Deploy-Stick.ps1 -DiskNumber <N> -WithLinuxBoot   (for the GRUB stick)
 
+.PARAMETER WithLinuxBoot
+    Also fetch the Linux payload ISOs and build GRUB, for a multiboot stick. Needs
+    WSL. Without it, part 1 skips payload and GRUB (WinPE-direct stick).
 .PARAMETER SkipTools
     Skip Get-Tools.ps1 (the tools are already in tools\).
 .PARAMETER SkipPayload
@@ -17,6 +27,7 @@
     Path to the toolkit root. Defaults to the repo root (parent of build).
 #>
 param(
+    [switch]$WithLinuxBoot,
     [switch]$SkipTools,
     [switch]$SkipPayload,
     [string]$ToolsetRoot = (Split-Path $PSScriptRoot -Parent)
@@ -39,7 +50,7 @@ Step 'preflight' 'Checking prerequisites'
 $copype = "${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Windows Preinstallation Environment\copype.cmd"
 $missing = @()
 if (-not (Test-Path $copype)) { $missing += 'Windows ADK + the WinPE add-on (copype.cmd not found)' }
-if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) { $missing += 'WSL with an Ubuntu/Debian distro (GRUB is built there)' }
+if ($WithLinuxBoot -and -not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) { $missing += 'WSL with an Ubuntu/Debian distro (GRUB is built there; only needed for -WithLinuxBoot)' }
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) { $missing += 'the .NET SDK (dotnet on PATH)' }
 $hasScoop = (Get-Command scoop -ErrorAction SilentlyContinue) -or (Test-Path (Join-Path $env:USERPROFILE 'scoop\shims\scoop.ps1'))
 if (-not $SkipTools -and -not $hasScoop) { $missing += 'Scoop for some tools (install: irm get.scoop.sh | iex)' }
@@ -58,16 +69,29 @@ Write-Host "  Launcher built." -ForegroundColor Green
 if ($SkipTools) { Step 2 'Fetching tools (skipped)' }
 else { Step 2 'Fetching tools (Get-Tools.ps1)'; & (Join-Path $ToolsetRoot 'build\Get-Tools.ps1') -ToolsetRoot $ToolsetRoot }
 
-if ($SkipPayload) { Step 3 'Fetching Linux payload (skipped)' }
+if (-not $WithLinuxBoot) { Step 3 'Fetching Linux payload (skipped - WinPE-direct build)' }
+elseif ($SkipPayload) { Step 3 'Fetching Linux payload (skipped)' }
 else { Step 3 'Fetching Linux payload (Get-Payload.ps1)'; & (Join-Path $ToolsetRoot 'build\Get-Payload.ps1') -ToolsetRoot $ToolsetRoot }
 
-Step 4 'Building GRUB (Build-Grub.ps1, via WSL)'
-& (Join-Path $ToolsetRoot 'build\Build-Grub.ps1') -ToolsetRoot $ToolsetRoot
-if ($LASTEXITCODE -ne 0) { Fail 'GRUB build failed' }
+if (-not $WithLinuxBoot) {
+    Step 4 'Building GRUB (skipped - WinPE-direct build)'
+} else {
+    Step 4 'Building GRUB (Build-Grub.ps1, via WSL)'
+    & (Join-Path $ToolsetRoot 'build\Build-Grub.ps1') -ToolsetRoot $ToolsetRoot
+    if ($LASTEXITCODE -ne 0) { Fail 'GRUB build failed' }
+}
 
 Write-Host ""
-Write-Host "  Part 1 done: launcher, tools, payload, and GRUB are ready." -ForegroundColor Green
+if ($WithLinuxBoot) {
+    Write-Host "  Part 1 done: launcher, tools, payload, and GRUB are ready (GRUB multiboot stick)." -ForegroundColor Green
+} else {
+    Write-Host "  Part 1 done: launcher and tools are ready (WinPE-direct stick; Secure Boot can stay on)." -ForegroundColor Green
+}
 Write-Host "  Next, from an ELEVATED prompt, build WinPE and deploy:" -ForegroundColor Cyan
 Write-Host "    build\Deploy-Stick.ps1                 (lists USB disks)" -ForegroundColor DarkGray
-Write-Host "    build\Deploy-Stick.ps1 -DiskNumber <N> (builds WinPE, then wipes and writes that disk)" -ForegroundColor DarkGray
+if ($WithLinuxBoot) {
+    Write-Host "    build\Deploy-Stick.ps1 -DiskNumber <N> -WithLinuxBoot" -ForegroundColor DarkGray
+} else {
+    Write-Host "    build\Deploy-Stick.ps1 -DiskNumber <N> (builds WinPE, then wipes and writes that disk)" -ForegroundColor DarkGray
+}
 Write-Host ""

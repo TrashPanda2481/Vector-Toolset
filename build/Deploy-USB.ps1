@@ -3,23 +3,35 @@
     Vector Toolset - deploy to a USB stick
 .DESCRIPTION
     Partitions a USB stick and lays down the whole toolkit:
-      - VECTORPE   (FAT32, EFI System Partition): the WinPE media plus GRUB.
-      - VECTORDATA (exFAT): the tools, config, scripts, launcher, and payload
-                    ISOs. This is the partition every OS mounts.
+      - VECTORPE   (FAT32, EFI System Partition): the WinPE media. With
+                    -WithLinuxBoot it also holds GRUB and the GRUB menu.
+      - VECTORDATA (exFAT): the tools, config, scripts, and launcher (plus the
+                    Linux payload ISOs under -WithLinuxBoot). Every OS mounts this.
+
+    By default the stick boots straight into WinPE via the Microsoft-signed
+    Windows Boot Manager, so Secure Boot can stay ON. Pass -WithLinuxBoot to make
+    GRUB the bootloader with the full multiboot menu (Memtest, Clonezilla, ShredOS,
+    etc.); GRUB is not Microsoft-signed, so that stick needs Secure Boot OFF.
 
     THIS WIPES THE TARGET DISK. It is written to be hard to point at the wrong
     one: it needs an explicit -DiskNumber, refuses a non-USB disk unless you pass
     -Force, and requires you to type the disk number to confirm.
 
     Run from an ELEVATED prompt. Requires a WinPE media build first:
-    build\Build-WinPE.ps1 (produces build\winpe-work\media).
+    build\Build-WinPE.ps1 (produces build\winpe-work\media). -WithLinuxBoot also
+    needs GRUB built (build\Build-Grub.ps1) and payload ISOs (build\Get-Payload.ps1).
 .PARAMETER DiskNumber
     The target disk number (from Get-Disk). Required. Run with no arguments to
     list disks first.
 .PARAMETER ToolsetRoot
     Path to the toolkit root. Defaults to the repo root (parent of build).
 .PARAMETER PayloadSource
-    Optional folder of Linux boot ISOs to copy into VECTORDATA\payload.
+    Optional folder of Linux boot ISOs to copy into VECTORDATA\payload. Only used
+    with -WithLinuxBoot.
+.PARAMETER WithLinuxBoot
+    Install GRUB as the bootloader and lay down the Linux payload ISOs, giving the
+    full multiboot menu. Requires Secure Boot OFF on the target. Without this, the
+    stick boots straight into WinPE and Secure Boot can stay on.
 .PARAMETER Force
     Allow a target whose BusType is not USB. Use with great care.
 #>
@@ -27,6 +39,7 @@ param(
     [int]$DiskNumber = -1,
     [string]$ToolsetRoot = (Split-Path $PSScriptRoot -Parent),
     [string]$PayloadSource,
+    [switch]$WithLinuxBoot,
     [switch]$Force
 )
 
@@ -139,25 +152,26 @@ Copy-Item (Join-Path $media '*') "${pe}:\" -Recurse -Force
 Write-Host "  [4/7] Installing the bootloader..." -ForegroundColor Yellow
 $efiBoot = "${pe}:\EFI\BOOT"
 New-Item -ItemType Directory -Force -Path $efiBoot | Out-Null
-$grubEfi = Get-ChildItem (Join-Path $ToolsetRoot 'boot\grub') -Filter '*x64.efi' -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($grubEfi) {
+if ($WithLinuxBoot) {
+    # GRUB multiboot: GRUB is the EFI bootloader and chainloads WinPE. GRUB is not
+    # Microsoft-signed, so the target machine needs Secure Boot OFF.
+    $grubEfi = Get-ChildItem (Join-Path $ToolsetRoot 'boot\grub') -Filter '*x64.efi' -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $grubEfi) { Fail "GRUB binaries not found in boot\grub. Build them first (build\Build-Grub.ps1, or build\Make-Stick.ps1 -WithLinuxBoot), or deploy without -WithLinuxBoot for a WinPE-direct stick." }
     Copy-Item $grubEfi.FullName (Join-Path $efiBoot 'BOOTX64.EFI') -Force
     # GRUB config, theme, and fonts under the prefix (EFI\BOOT).
     Copy-Item (Join-Path $ToolsetRoot 'boot\grub.cfg') $efiBoot -Force
     if (Test-Path (Join-Path $ToolsetRoot 'boot\theme')) { Copy-Item (Join-Path $ToolsetRoot 'boot\theme') $efiBoot -Recurse -Force }
     $fontsSrc = Join-Path $ToolsetRoot 'boot\grub\fonts'
     if (Test-Path $fontsSrc) { Copy-Item $fontsSrc $efiBoot -Recurse -Force }
-    Write-Host "    GRUB installed (multiboot menu)." -ForegroundColor DarkGray
+    Write-Host "    GRUB installed (multiboot menu). Target needs Secure Boot OFF." -ForegroundColor DarkGray
 } else {
-    # Fallback: no GRUB binaries yet. Copy WinPE's own EFI boot manager to the
-    # firmware fallback path so the stick still boots straight into WinPE.
+    # WinPE-direct (default): copy WinPE's own Microsoft-signed boot manager to the
+    # firmware fallback path, so the stick boots straight into WinPE and Secure Boot
+    # can stay ON.
     $winpeBootmgr = "${pe}:\EFI\Microsoft\Boot\bootmgfw.efi"
-    if (Test-Path $winpeBootmgr) {
-        Copy-Item $winpeBootmgr (Join-Path $efiBoot 'BOOTX64.EFI') -Force
-        Write-Host "    No GRUB binaries in boot\grub - set to boot straight into WinPE (no menu yet)." -ForegroundColor DarkGray
-    } else {
-        Write-Host "    WARNING: no GRUB and no WinPE bootmgr found; the stick may not boot." -ForegroundColor Red
-    }
+    if (-not (Test-Path $winpeBootmgr)) { Fail "WinPE boot manager not found at $winpeBootmgr - the WinPE media copy may have failed." }
+    Copy-Item $winpeBootmgr (Join-Path $efiBoot 'BOOTX64.EFI') -Force
+    Write-Host "    WinPE-direct boot (Microsoft-signed). Secure Boot can stay ON." -ForegroundColor DarkGray
 }
 
 Write-Host "  [5/7] Populating VECTORDATA (tools, config, scripts, launcher)..." -ForegroundColor Yellow
@@ -174,16 +188,20 @@ Copy-Item (Join-Path $ToolsetRoot '.toolset-root') "${data}:\" -Force
 Copy-Item (Join-Path $ToolsetRoot 'Launch.bat') "${data}:\Start Vector Toolset.bat" -Force
 
 Write-Host "  [6/7] Copying payload ISOs..." -ForegroundColor Yellow
-$payloadDest = "${data}:\payload"
-New-Item -ItemType Directory -Force -Path $payloadDest | Out-Null
-if ($PayloadSource -and (Test-Path $PayloadSource)) {
-    # Copy the ISOs and the Memtest86+ hybrid binaries (memtest.efi/.bin), which
-    # the GRUB menu references directly from payload\ and are not .iso files.
-    $items = Get-ChildItem $PayloadSource -File | Where-Object { $_.Extension -in '.iso', '.efi', '.bin' }
-    foreach ($it in $items) { Copy-Item $it.FullName $payloadDest -Force }
-    Write-Host ("    Copied {0} payload files from {1}" -f $items.Count, $PayloadSource) -ForegroundColor DarkGray
+if ($WithLinuxBoot) {
+    $payloadDest = "${data}:\payload"
+    New-Item -ItemType Directory -Force -Path $payloadDest | Out-Null
+    if ($PayloadSource -and (Test-Path $PayloadSource)) {
+        # Copy the ISOs and the Memtest86+ hybrid binaries (memtest.efi/.bin), which
+        # the GRUB menu references directly from payload\ and are not .iso files.
+        $items = Get-ChildItem $PayloadSource -File | Where-Object { $_.Extension -in '.iso', '.efi', '.bin' }
+        foreach ($it in $items) { Copy-Item $it.FullName $payloadDest -Force }
+        Write-Host ("    Copied {0} payload files from {1}" -f $items.Count, $PayloadSource) -ForegroundColor DarkGray
+    } else {
+        Write-Host "    No PayloadSource given - drop Clonezilla/GParted/etc. ISOs into ${data}:\payload later." -ForegroundColor DarkGray
+    }
 } else {
-    Write-Host "    No PayloadSource given - drop Clonezilla/GParted/etc. ISOs into ${data}:\payload later." -ForegroundColor DarkGray
+    Write-Host "    Skipped - WinPE-direct build has no Linux boot menu (use -WithLinuxBoot to include it)." -ForegroundColor DarkGray
 }
 
 Write-Host "  [7/7] Tidying up (hiding system folders, unmounting boot partition)..." -ForegroundColor Yellow
@@ -211,4 +229,8 @@ Write-Host "  Done. Stick ready:" -ForegroundColor Green
 Write-Host "    VECTORPE   (hidden ESP)  - WinPE media and bootloader"
 Write-Host "    VECTORDATA (${data}:) - visible tools\ + 'Start Vector Toolset.bat'; system files hidden"
 Write-Host ""
-Write-Host "  Boot it (UEFI, Secure Boot off) to test. Safely eject when done." -ForegroundColor Cyan
+if ($WithLinuxBoot) {
+    Write-Host "  Boot it (UEFI, Secure Boot OFF - GRUB is unsigned) to test. Safely eject when done." -ForegroundColor Cyan
+} else {
+    Write-Host "  Boot it (UEFI; Secure Boot can stay ON) to test. Safely eject when done." -ForegroundColor Cyan
+}
